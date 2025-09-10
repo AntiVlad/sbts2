@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  id            String          @id @default(cuid())
+  regNo         String          @unique
+  fullName      String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  attendances   Attendance[]
+  DeviceBinding DeviceBinding[]
+}
+
+model Attendance {
+  id        String    @id @default(cuid())
+  studentId String
+  date      String // "YYYY-MM-DD" in Africa/Lagos
+  clockIn   DateTime?
+  clockOut  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  student   Student   @relation(fields: [studentId], references: [id])
+
+  @@unique([studentId, date])
+}
+
+model Setting {
+  id        String    @id @default(cuid())
+  key       String    @unique
+  value     String
+  expiresAt DateTime?
+  updatedAt DateTime  @updatedAt
+}
+
+model DeviceBinding {
+  id        String   @id @default(cuid())
+  deviceId  String   @unique
+  studentId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  student   Student  @relation(fields: [studentId], references: [id])
+}

@@ -17,7 +17,6 @@ function getDeviceFingerprint(): string {
              '127.0.0.1'
   const userAgent = headerStore.get('user-agent') || 'unknown'
   
-  // Create a consistent fingerprint from IP and User-Agent
   const fingerprint = `${ip}:${userAgent}`
   return createHash('sha256').update(fingerprint).digest('hex').slice(0, 16)
 }

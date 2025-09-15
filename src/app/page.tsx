@@ -1,8 +1,40 @@
 "use client"
 import Link from 'next/link'
-import { useState, FormEvent, ChangeEvent } from 'react'
+import { useState, useEffect, FormEvent, ChangeEvent } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function HomePage() {
+  const router = useRouter()
+  const [checking, setChecking] = useState(true)
+
+  useEffect(() => {
+    async function checkDevice() {
+      try {
+        const res = await fetch('/api/attendance/check-device')
+        const data = await res.json()
+        if (data.bound && data.redirect) {
+          router.push(data.redirect)
+          return
+        }
+      } catch (err) {
+        console.error('Error checking device:', err)
+      } finally {
+        setChecking(false)
+      }
+    }
+    checkDevice()
+  }, [router])
+
+  if (checking) {
+    return (
+      <div className="mx-auto max-w-xl">
+        <div className="card p-6">
+          <p className="text-sm text-white/70">Checking device...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="mx-auto max-w-xl">
       <div className="card p-6">

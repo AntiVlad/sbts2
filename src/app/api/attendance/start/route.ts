@@ -15,16 +15,13 @@ export async function POST(req: Request) {
     const { regNo, fullName } = schema.parse(json)
     const regKey = regNo.toUpperCase()
 
-    // Check device binding FIRST before creating any records
     const deviceId = getOrSetDeviceId()
     const bound = await prisma.deviceBinding.findUnique({ where: { deviceId } })
     if (bound) {
       const linked = await prisma.student.findUnique({ where: { id: bound.studentId } })
       if (!linked) {
-        // Orphaned binding: remove and continue with current student
         await prisma.deviceBinding.delete({ where: { deviceId } }).catch(() => {})
       } else {
-        // Check if this is the same student (case-insensitive regNo check)
         if (linked.regNo !== regKey) {
           const dateKeyLinked = todayLagos()
           await prisma.attendance.upsert({
@@ -40,7 +37,6 @@ export async function POST(req: Request) {
       }
     }
 
-    // Now check/create the student record
     let existing = await prisma.student.findUnique({ where: { regNo: regKey } })
     if (!existing && regKey !== regNo) {
       const legacy = await prisma.student.findUnique({ where: { regNo } })
@@ -62,7 +58,6 @@ export async function POST(req: Request) {
       create: { regNo: regKey, fullName },
     })
 
-    // Create device binding if not exists
     if (!bound) {
       await prisma.deviceBinding.create({ data: { deviceId, studentId: student.id } })
     }

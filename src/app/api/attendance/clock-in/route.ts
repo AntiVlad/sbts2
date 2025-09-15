@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 
     if (!student) return NextResponse.json({ message: 'Student not found' }, { status: 404 })
 
-    // Enforce device binding
+    
     const deviceId = getOrSetDeviceId()
     const bound = await prisma.deviceBinding.findUnique({ where: { deviceId } })
     if (bound && bound.studentId !== student.id) {

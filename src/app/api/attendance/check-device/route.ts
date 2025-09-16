@@ -10,18 +10,38 @@ export async function GET() {
     }
 
     const binding = await prisma.deviceBinding.findUnique({
-      where: { deviceId },
-      include: { student: true },
+      where: { deviceId }
     })
 
-    if (!binding || !binding.student) {
+    if (!binding) {
       return NextResponse.json({ bound: false })
     }
 
-    return NextResponse.json({
-      bound: true,
-      redirect: `/student?regNo=${encodeURIComponent(binding.student.regNo)}`,
-    })
+    if (binding.studentId) {
+      const student = await prisma.student.findUnique({
+        where: { id: binding.studentId }
+      })
+      if (student) {
+        return NextResponse.json({
+          bound: true,
+          redirect: `/student?regNo=${encodeURIComponent(student.regNo)}`,
+        })
+      }
+    }
+
+    if (binding.facilitatorId) {
+      const facilitator = await prisma.facilitator.findUnique({
+        where: { id: binding.facilitatorId }
+      })
+      if (facilitator) {
+        return NextResponse.json({
+          bound: true,
+          redirect: `/facilitator/status?name=${encodeURIComponent(facilitator.name)}`,
+        })
+      }
+    }
+
+    return NextResponse.json({ bound: false })
   } catch (err) {
     console.error('Error checking device binding:', err)
     return NextResponse.json({ bound: false })

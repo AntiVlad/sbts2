@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 export default function HomePage() {
   const router = useRouter()
   const [checking, setChecking] = useState(true)
+  const [roleSelected, setRoleSelected] = useState<'student' | 'facilitator' | null>(null)
 
   useEffect(() => {
     async function checkDevice() {
@@ -35,10 +36,40 @@ export default function HomePage() {
     )
   }
 
+  if (!roleSelected) {
+    return (
+      <div className="mx-auto max-w-xl">
+        <div className="card p-6">
+          <h2 className="mb-6 text-xl font-semibold text-center">Welcome to SBTS Clock in</h2>
+          <p className="mb-6 text-center text-white/70">Please select your role:</p>
+          <div className="flex gap-4 justify-center">
+            <button 
+              onClick={() => setRoleSelected('student')} 
+              className="btn btn-primary px-8"
+            >
+              Student
+            </button>
+            <button 
+              onClick={() => setRoleSelected('facilitator')} 
+              className="btn btn-primary px-8"
+            >
+              Facilitator
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (roleSelected === 'facilitator') {
+    router.push('/facilitator')
+    return null
+  }
+
   return (
     <div className="mx-auto max-w-xl">
       <div className="card p-6">
-        <h2 className="mb-4 text-xl font-semibold">Welcome to SBTS Clock in</h2>
+        <h2 className="mb-4 text-xl font-semibold">Student Clock in</h2>
         <StartForm />
       </div>
     </div>

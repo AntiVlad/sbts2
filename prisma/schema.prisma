@@ -72,25 +72,4 @@ model FacilitatorAttendance {
   @@unique([facilitatorId, date])
 }
 
-model Facilitator {
-  id            String                  @id @default(cuid())
-  name          String                  @unique
-  createdAt     DateTime                @default(now())
-  updatedAt     DateTime                @updatedAt
-  attendances   FacilitatorAttendance[]
-  DeviceBinding DeviceBinding[]
-}
 
-model FacilitatorAttendance {
-  id            String      @id @default(cuid())
-  facilitatorId String
-  date          String      // "YYYY-MM-DD" in Africa/Lagos
-  course        String
-  clockIn       DateTime?
-  clockOut      DateTime?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  facilitator   Facilitator @relation(fields: [facilitatorId], references: [id])
-
-  @@unique([facilitatorId, date])
-}
